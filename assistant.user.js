@@ -46,6 +46,43 @@
         }
     };
 
+    // ===========================
+    // État de l'application
+    // ===========================
+
+    const State = {
+
+        currentPage: "home",
+
+        settings: {
+
+            electricityPrice: 0.25, // €/kWh
+            filamentPrice: 22.00,   // €/kg
+            margin: 30              // %
+
+        },
+
+        printer: {
+
+            name: "",
+            power: 120              // Watts
+
+        },
+
+        model: {
+
+            title: "",
+            author: "",
+            weight: 0,
+            printTime: 0,
+            downloads: 0,
+            likes: 0,
+            license: ""
+
+        }
+
+    };
+
 let isDragging = false;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
@@ -329,7 +366,7 @@ function createPanel() {
         .addEventListener("click", togglePanel);
 
     enableDragging();
-    showHome();
+    showPage("home");
     initTabs();
 }
 function togglePanel(){
@@ -414,45 +451,74 @@ function detectSite() {
         console.log(`🌐 Site détecté : ${APP.currentSite}`);
 
 }
-function showHome(){
+const Pages = {
+
+    home() {
 
     document.getElementById("tpa-page").innerHTML = `
-
-        <h3>Bienvenue 👋</h3>
+        <h3>🏠 Accueil</h3>
 
         <p><strong>🌐 Site :</strong> ${APP.currentSite}</p>
 
         <p><strong>📦 Version :</strong> ${APP.version}</p>
 
-        <p><strong>🟢 Statut :</strong> Connecté</p>
+        <p><strong>📄 Page actuelle :</strong> ${State.currentPage}</p>
 
+        <p><strong>⚡ Prix électricité :</strong> ${State.settings.electricityPrice} €/kWh</p>
+
+        <p><strong>🧵 Prix filament :</strong> ${State.settings.filamentPrice} €/kg</p>
+
+        <p><strong>📈 Marge :</strong> ${State.settings.margin} %</p>
     `;
 
-}
-function showCalculator() {
+},
 
-    document.getElementById("tpa-page").innerHTML = `
-        <h3>💰 Calculateur</h3>
-        <p>Cette fonctionnalité arrivera dans la prochaine version.</p>
-    `;
+    calculator() {
 
-}
+        document.getElementById("tpa-page").innerHTML = `
+            <h3>💰 Calculateur</h3>
 
-function showFilament() {
+            <p>Le calculateur sera disponible prochainement.</p>
+        `;
 
-    document.getElementById("tpa-page").innerHTML = `
-        <h3>🧵 Filaments</h3>
-        <p>Gestion des bobines à venir.</p>
-    `;
+    },
 
-}
+    filament() {
 
-function showSettings() {
+        document.getElementById("tpa-page").innerHTML = `
+            <h3>🧵 Filaments</h3>
 
-    document.getElementById("tpa-page").innerHTML = `
-        <h3>⚙️ Paramètres</h3>
-        <p>Configuration de l'assistant.</p>
-    `;
+            <p>Gestion des bobines à venir.</p>
+        `;
+
+    },
+
+    settings() {
+
+        document.getElementById("tpa-page").innerHTML = `
+            <h3>⚙️ Paramètres</h3>
+
+            <p>Configuration de l'assistant.</p>
+        `;
+
+    }
+
+};
+function showPage(page) {
+
+    // Mémorise la page actuelle
+    State.currentPage = page;
+
+    // Vérifie que la page existe
+    if (typeof Pages[page] !== "function") {
+        console.error(`Page inconnue : ${page}`);
+        return;
+    }
+
+    // Affiche la page
+    Pages[page]();
+
+    console.log("📄 Page :", State.currentPage);
 
 }
 function initTabs() {
@@ -461,34 +527,17 @@ function initTabs() {
 
     tabs.forEach(tab => {
 
-        tab.addEventListener("click", () => {
+    tab.addEventListener("click", () => {
 
-            tabs.forEach(t => t.classList.remove("active"));
-            tab.classList.add("active");
+        tabs.forEach(t => t.classList.remove("active"));
 
-            switch (tab.dataset.tab) {
+        tab.classList.add("active");
 
-                case "home":
-                    showHome();
-                    break;
-
-                case "calculator":
-                    showCalculator();
-                    break;
-
-                case "filament":
-                    showFilament();
-                    break;
-
-                case "settings":
-                    showSettings();
-                    break;
-            }
-
-        });
+        showPage(tab.dataset.tab);
 
     });
 
+});
 }
 detectSite();
 
