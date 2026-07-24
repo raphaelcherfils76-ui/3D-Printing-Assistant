@@ -45,6 +45,11 @@
             }
         }
     };
+
+let isDragging = false;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+
 function injectStyles() {
     GM_addStyle(`
         /* ===========================
@@ -61,7 +66,6 @@ function injectStyles() {
             border: none;
             background: #ff6b00;
             color: white;
-            font-size: 28px;
             cursor: pointer;
             box-shadow: 0 8px 20px rgba(0,0,0,.35);
             z-index: 999999;
@@ -73,63 +77,134 @@ function injectStyles() {
             box-shadow: 0 12px 28px rgba(0,0,0,.45);
         }
 
+        #tpa-button svg{
+            width:30px;
+            height:30px;
+        }
+
         /* ===========================
            Fenêtre principale
         =========================== */
 
         #tpa-panel {
+
             position: fixed;
+
             right: 100px;
             bottom: 24px;
+
             width: 360px;
+
             background: #1f1f23;
             color: white;
+
             border-radius: 16px;
+
             box-shadow: 0 15px 40px rgba(0,0,0,.45);
+
             overflow: hidden;
+
             z-index: 999998;
-            display: none;
+
             font-family: "Segoe UI", Arial, sans-serif;
+
+            /* Animation */
+
+            opacity: 0;
+
+            transform: translateY(20px) scale(.95);
+
+            pointer-events: none;
+
+            transition:
+                opacity .25s ease,
+                transform .25s ease;
+
         }
+
+        #tpa-panel.show{
+
+            opacity:1;
+
+            transform:translateY(0) scale(1);
+
+            pointer-events:auto;
+
+        }
+
+        /* ===========================
+           Header
+        =========================== */
 
         #tpa-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 18px;
-            background: #ff6b00;
-            font-weight: bold;
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:center;
+
+            padding:14px 18px;
+
+            background:#ff6b00;
+
+            font-weight:bold;
+
         }
 
-        #tpa-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        #tpa-title{
+
+            display:flex;
+
+            align-items:center;
+
+            gap:10px;
+
         }
 
-        #tpa-title svg {
-            width: 24px;
-            height: 24px;
+        #tpa-title svg{
+
+            width:24px;
+
+            height:24px;
+
         }
 
-        #tpa-close {
-            cursor: pointer;
-            font-size: 20px;
-            user-select: none;
-            transition: transform .2s ease;
+        /* ===========================
+           Bouton fermer
+        =========================== */
+
+        #tpa-close{
+
+            cursor:pointer;
+
+            font-size:24px;
+
+            transition:.2s;
+
+            user-select:none;
+
         }
 
-        #tpa-close:hover {
-            transform: scale(1.2);
+        #tpa-close:hover{
+
+            transform:rotate(90deg);
+
         }
 
-        #tpa-content {
-            padding: 18px;
-            line-height: 1.8;
+        /* ===========================
+           Contenu
+        =========================== */
+
+        #tpa-content{
+
+            padding:20px;
+
+            line-height:2;
+
         }
     `);
 }
-
 const printerIconSVG = `
 <svg xmlns="http://www.w3.org/2000/svg"
      viewBox="0 0 64 64"
@@ -180,16 +255,47 @@ function createPanel() {
     document
         .getElementById("tpa-close")
         .addEventListener("click", togglePanel);
+
+    enableDragging();
 }
-function togglePanel() {
+function togglePanel(){
 
     const panel = document.getElementById("tpa-panel");
 
-    if (panel.style.display === "block") {
-        panel.style.display = "none";
-    } else {
-        panel.style.display = "block";
-    }
+    panel.classList.toggle("show");
+
+}
+function enableDragging() {
+
+    const panel = document.getElementById("tpa-panel");
+    const header = document.getElementById("tpa-header");
+
+    header.addEventListener("mousedown", (e) => {
+
+        isDragging = true;
+
+        dragOffsetX = e.clientX - panel.offsetLeft;
+        dragOffsetY = e.clientY - panel.offsetTop;
+
+    });
+
+    document.addEventListener("mousemove", (e) => {
+
+        if (!isDragging) return;
+
+        panel.style.left = (e.clientX - dragOffsetX) + "px";
+        panel.style.top = (e.clientY - dragOffsetY) + "px";
+
+        panel.style.right = "auto";
+        panel.style.bottom = "auto";
+
+    });
+
+    document.addEventListener("mouseup", () => {
+
+        isDragging = false;
+
+    });
 
 }
 function createButton() {
@@ -223,6 +329,7 @@ function detectSite() {
         console.log(`🖨 ${APP.name}`);
         console.log(`📦 Version : ${APP.version}`);
         console.log(`🌐 Site détecté : ${APP.currentSite}`);
+
 }
 
 detectSite();
