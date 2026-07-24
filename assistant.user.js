@@ -52,36 +52,36 @@
 
     const State = {
 
-        currentPage: "home",
+    currentPage: "home",
 
-        settings: {
+    settings: {
+        electricityPrice: 0.25,
+        filamentPrice: 22,
+        margin: 30
+    },
 
-            electricityPrice: 0.25, // €/kWh
-            filamentPrice: 22.00,   // €/kg
-            margin: 30              // %
+    printer: {
+        name: "",
+        power: 120
+    },
 
-        },
+    model: {
 
-        printer: {
+        isModelPage: false,
 
-            name: "",
-            power: 120              // Watts
+        title: "",
+        author: "",
+        url: "",
 
-        },
+        weight: 0,
+        printTime: 0,
+        downloads: 0,
+        likes: 0,
+        license: ""
 
-        model: {
+    }
 
-            title: "",
-            author: "",
-            weight: 0,
-            printTime: 0,
-            downloads: 0,
-            likes: 0,
-            license: ""
-
-        }
-
-    };
+};
 
 let isDragging = false;
 let dragOffsetX = 0;
@@ -451,7 +451,52 @@ function detectSite() {
         console.log(`🌐 Site détecté : ${APP.currentSite}`);
 
 }
-const Pages = {
+const Scanners = {
+
+    printables() {
+
+        console.log("🔍 Analyse Printables");
+
+        State.model.isModelPage = window.location.pathname.startsWith("/model/");
+        State.model.url = window.location.href;
+
+        if (State.model.isModelPage) {
+            // Titre
+            const title = document.querySelector("h1");
+
+            if (title) {
+                State.model.title = title.textContent.trim();
+            }
+
+            // Auteur
+
+           const author = document.querySelector(
+    '[data-testid="user-card"] .name span'
+);
+
+if (author) {
+    State.model.author = author.textContent.trim();
+}
+
+        }
+            console.log(State.model);
+
+    },
+
+    makerworld() {
+        console.log("🔍 Analyse MakerWorld");
+    },
+
+    cults3d() {
+        console.log("🔍 Analyse Cults3D");
+    },
+
+    thingiverse() {
+        console.log("🔍 Analyse Thingiverse");
+    }
+
+};
+    const Pages = {
 
     home() {
 
@@ -469,6 +514,10 @@ const Pages = {
         <p><strong>🧵 Prix filament :</strong> ${State.settings.filamentPrice} €/kg</p>
 
         <p><strong>📈 Marge :</strong> ${State.settings.margin} %</p>
+
+        <p><strong>📦 Modèle :</strong> ${State.model.title}</p>
+
+        <p><strong>🔗 URL :</strong> ${State.model.url}</p>
     `;
 
 },
@@ -539,6 +588,33 @@ function initTabs() {
 
 });
 }
+
+function scanCurrentPage() {
+
+    switch (APP.currentSite) {
+
+        case "Printables":
+            Scanners.printables();
+            break;
+
+        case "MakerWorld":
+            Scanners.makerworld();
+            break;
+
+        case "Cults3D":
+            Scanners.cults3d();
+            break;
+
+        case "Thingiverse":
+            Scanners.thingiverse();
+            break;
+
+        default:
+            console.warn("Aucun scanner disponible.");
+
+    }
+
+}
 detectSite();
 
 injectStyles();
@@ -546,5 +622,7 @@ injectStyles();
 createPanel();
 
 createButton();
+
+scanCurrentPage();
 
 })();
