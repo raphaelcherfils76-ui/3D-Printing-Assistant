@@ -229,6 +229,15 @@ function createPanel() {
     const panel = document.createElement("div");
     panel.id = "tpa-panel";
 
+    const savedLeft = GM_getValue("panelLeft", null);
+    const savedTop = GM_getValue("panelTop", null);
+
+    if (savedLeft !== null && savedTop !== null) {
+    panel.style.left = savedLeft + "px";
+    panel.style.top = savedTop + "px";
+    panel.style.right = "auto";
+    panel.style.bottom = "auto";
+}
     panel.innerHTML = `
         <div id="tpa-header">
 
@@ -291,11 +300,20 @@ function enableDragging() {
 
     });
 
-    document.addEventListener("mouseup", () => {
+   document.addEventListener("mouseup", () => {
 
-        isDragging = false;
+    if (isDragging) {
 
-    });
+        GM_setValue("panelLeft", panel.offsetLeft);
+        GM_setValue("panelTop", panel.offsetTop);
+
+        console.log("📍 Position sauvegardée :", panel.offsetLeft, panel.offsetTop);
+
+    }
+
+    isDragging = false;
+
+});
 
 }
 function createButton() {
