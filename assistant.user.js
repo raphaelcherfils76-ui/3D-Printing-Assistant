@@ -203,6 +203,59 @@ function injectStyles() {
             line-height:2;
 
         }
+        /* ===========================
+   Barre des onglets
+=========================== */
+
+#tpa-tabs{
+
+    display:flex;
+
+    background:#2b2b30;
+
+    border-bottom:1px solid #444;
+
+}
+
+.tpa-tab{
+
+    flex:1;
+
+    padding:12px;
+
+    border:none;
+
+    background:none;
+
+    color:#bbb;
+
+    cursor:pointer;
+
+    transition:.2s;
+
+    font-size:14px;
+
+}
+
+.tpa-tab:hover{
+
+    background:#3a3a40;
+
+    color:white;
+
+}
+
+.tpa-tab.active{
+
+    background:#ff6b00;
+
+    color:white;
+
+    font-weight:bold;
+
+}
+
+
     `);
 }
 const printerIconSVG = `
@@ -239,25 +292,35 @@ function createPanel() {
     panel.style.bottom = "auto";
 }
     panel.innerHTML = `
-        <div id="tpa-header">
+    <div id="tpa-header">
 
-            <div id="tpa-title">
-                ${printerIconSVG}
-                <span>3D Printing Assistant</span>
-            </div>
-
-            <div id="tpa-close">✕</div>
-
+        <div id="tpa-title">
+            ${printerIconSVG}
+            <span>3D Printing Assistant</span>
         </div>
 
-        <div id="tpa-content">
+        <div id="tpa-close">✕</div>
 
-            <p><strong>🌐 Site :</strong> ${APP.currentSite}</p>
-            <p><strong>📦 Version :</strong> ${APP.version}</p>
-            <p><strong>🟢 Statut :</strong> Connecté</p>
+    </div>
 
-        </div>
-    `;
+    <div id="tpa-tabs">
+
+        <button class="tpa-tab active" data-tab="home">🏠 Accueil</button>
+
+        <button class="tpa-tab" data-tab="calculator">💰 Calcul</button>
+
+        <button class="tpa-tab" data-tab="filament">🧵 Filament</button>
+
+        <button class="tpa-tab" data-tab="settings">⚙️</button>
+
+    </div>
+
+    <div id="tpa-content">
+
+        <div id="tpa-page"></div>
+
+    </div>
+`;
 
     document.body.appendChild(panel);
 
@@ -266,6 +329,8 @@ function createPanel() {
         .addEventListener("click", togglePanel);
 
     enableDragging();
+    showHome();
+    initTabs();
 }
 function togglePanel(){
 
@@ -349,7 +414,82 @@ function detectSite() {
         console.log(`🌐 Site détecté : ${APP.currentSite}`);
 
 }
+function showHome(){
 
+    document.getElementById("tpa-page").innerHTML = `
+
+        <h3>Bienvenue 👋</h3>
+
+        <p><strong>🌐 Site :</strong> ${APP.currentSite}</p>
+
+        <p><strong>📦 Version :</strong> ${APP.version}</p>
+
+        <p><strong>🟢 Statut :</strong> Connecté</p>
+
+    `;
+
+}
+function showCalculator() {
+
+    document.getElementById("tpa-page").innerHTML = `
+        <h3>💰 Calculateur</h3>
+        <p>Cette fonctionnalité arrivera dans la prochaine version.</p>
+    `;
+
+}
+
+function showFilament() {
+
+    document.getElementById("tpa-page").innerHTML = `
+        <h3>🧵 Filaments</h3>
+        <p>Gestion des bobines à venir.</p>
+    `;
+
+}
+
+function showSettings() {
+
+    document.getElementById("tpa-page").innerHTML = `
+        <h3>⚙️ Paramètres</h3>
+        <p>Configuration de l'assistant.</p>
+    `;
+
+}
+function initTabs() {
+
+    const tabs = document.querySelectorAll(".tpa-tab");
+
+    tabs.forEach(tab => {
+
+        tab.addEventListener("click", () => {
+
+            tabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+
+            switch (tab.dataset.tab) {
+
+                case "home":
+                    showHome();
+                    break;
+
+                case "calculator":
+                    showCalculator();
+                    break;
+
+                case "filament":
+                    showFilament();
+                    break;
+
+                case "settings":
+                    showSettings();
+                    break;
+            }
+
+        });
+
+    });
+
+}
 detectSite();
 
 injectStyles();
